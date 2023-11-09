@@ -1,0 +1,25 @@
+This is a port of the original SuperStarTrek to BBC Basic
+
+From the original program:
+
+Super StarTrek - May 16, 1978 - Requires 24K Memory
+
+****        **** Star Trek ****        ****
+**** Simulation of a Mission of the Starship Enterprise,
+**** as Seen on the Star Trek TV Show.
+**** Original Program by Mike Mayfield, Modified Version
+**** Published in DEC's "101 Basic Games," by Dave Ahl.
+**** Modifications to the Latter (Plus Debugging) by Bob
+*** Leedom - April & December 1974,
+*** With a Little Help from His Friends . . .
+*** Comments, Epithets, and Suggestions Solicited --
+*** Send to:  R. C. Leedom
+***           Westinghouse Defense & Electronics Systems Cntr.
+***           Box 746, M.S. 338
+***           Baltimore, MD  21203
+***
+*** Converted to Microsoft 8 K Basic 3/16/78 by John Gorders
+*** Line Numbers from Version STREK7 of 1/12/75 Preserved as
+*** Much as Possible While Using Multiple Statements per Line
+*** Some Lines Are Longer Than 72 Characters; This Was Done
+*** by Using "?" Instead of "Print" When Entering Lines
