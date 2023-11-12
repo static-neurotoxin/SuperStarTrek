@@ -1,3 +1,4 @@
+INSTALL @lib$+"STRINGLIB"
    10 REM SUPER STARTREK - MAY 16,1978 - REQUIRES 24K MEMORY
    30 REM
    40 REM ****        **** STAR TREK ****        ****
@@ -20,6 +21,45 @@
   205 REM *** SOME LINES ARE LONGER THAN 72 CHARACTERS; THIS WAS DONE
   210 REM *** BY USING "?" INSTEAD OF "PRINT" WHEN ENTERING LINES
   215 REM ***
+REM *** November, 2023 ported to BBC Basic and enhanced in a number of ways
+REM *** 
+REM *** CHANGELOG
+REM     * Added whitespace
+REM         BBC Basic is far more capable than 8K Microsoft Basic, so many of
+REM         the memory saving techniques make assumptions, like 2 character
+REM         variable names and all whitespace is optional that creates
+REM         ambiguity when these assumptions are no longer applicable.
+REM
+REM         Running on a memory limited basic is not a goal of this port
+REM
+REM     * Convert confusing flow control structures to more modern ones
+REM         The original code only uses IF/THEN, GOTO, GOSUB and ON n GO[TO/SUB]
+REM
+REM         I am converting code to use IF/THEN/ELSE, Mulitline IF, CASE and
+REM         WHILE/ENDWHILE 
+
+REM
+REM     TODO
+REM      * Remove Altair Basic TTY dead code
+REM      * Convert all code to one statement per line
+REM      * Rename variables to descriptive names
+REM      * Convert unnamed procedures (GOSUB/RETURN) to named procedures
+REM      * Eliminate GOTO
+REM      * Eliminate remaining line numbers
+REM      * Convert all text to mixed text
+
+REM     Possible Enhancements
+REM      * Coordinates are y, x in game. Convert them to x, y
+REM      * Remove Paramount™ intellectual property
+REM      * Persistant sector maps
+REM      * Add color
+REM      * Convert to menuing system
+REM      * Add additional adversaries
+REM      * Add neutral ships
+REM
+REM     Lee Morgan 11/12/23
+REM ***
+
   220 PRINT : PRINT : PRINT : PRINT : PRINT : PRINT : PRINT : PRINT : PRINT : PRINT : PRINT
   221 PRINT "                                    ,------*------,"
   222 PRINT "                    ,-------------   '---  ------'"
@@ -90,18 +130,31 @@
  2040 PRINT " AND SHIELD CONTROL" : PRINT "IS PRESENTLY INCAPABLE OF CROSS";
  2050 PRINT "-CIRCUITING TO ENGINE ROOM!!" : GOTO 6220
  2060 INPUT "COMMAND ";A$
- 2080 FOR I = 1 TO 9: IF LEFT$(A$, 3) <> MID$(A1$, 3 * I - 2, 3) THEN 2160
- 2140   ON I GOTO 2300, 1980, 4000, 4260, 4700, 5530, 5690, 7290, 6270
- 2160 NEXT I: PRINT "ENTER ONE OF THE FOLLOWING:"
- 2180 PRINT "  NAV  (TO SET COURSE)"
- 2190 PRINT "  SRS  (FOR SHORT RANGE SENSOR SCAN)"
- 2200 PRINT "  LRS  (FOR LONG RANGE SENSOR SCAN)"
- 2210 PRINT "  PHA  (TO FIRE PHASERS)"
- 2220 PRINT "  TOR  (TO FIRE PHOTON TORPEDOES)"
- 2230 PRINT "  SHE  (TO RAISE OR LOWER SHIELDS)"
- 2240 PRINT "  DAM  (FOR DAMAGE CONTROL REPORTS)"
- 2250 PRINT "  COM  (TO CALL ON LIBRARY-COMPUTER)"
- 2260 PRINT "  XXX  (TO RESIGN YOUR COMMAND)": PRINT : GOTO 1990
+ CASE FN_upper(LEFT$(A$, 3)) OF
+   WHEN "NAV" : GOTO 2300
+   WHEN "SRS" : GOTO 1980
+   WHEN "LRS" : GOTO 4000
+   WHEN "PHA" : GOTO 4260
+   WHEN "TOR" : GOTO 4700
+   WHEN "SHE" : GOTO 5530
+   WHEN "DAM" : GOTO 5690
+   WHEN "COM" : GOTO 7290
+   WHEN "XXX" : GOTO 6270
+   OTHERWISE
+      PRINT "ENTER ONE OF THE FOLLOWING:"
+      PRINT "  NAV  (TO SET COURSE)"
+      PRINT "  SRS  (FOR SHORT RANGE SENSOR SCAN)"
+      PRINT "  LRS  (FOR LONG RANGE SENSOR SCAN)"
+      PRINT "  PHA  (TO FIRE PHASERS)"
+      PRINT "  TOR  (TO FIRE PHOTON TORPEDOES)"
+      PRINT "  SHE  (TO RAISE OR LOWER SHIELDS)"
+      PRINT "  DAM  (FOR DAMAGE CONTROL REPORTS)"
+      PRINT "  COM  (TO CALL ON LIBRARY-COMPUTER)"
+      PRINT "  XXX  (TO RESIGN YOUR COMMAND)"
+      PRINT
+ENDCASE
+GOTO 1990
+
  2290 REM COURSE CONTROL BEGINS HERE
  2300 INPUT "COURSE (0-9)"; C1 : IF C1 = 9 THEN C1 = 1
  2310 IF C1 >= 1 AND C1 < 9 THEN 2350
@@ -179,7 +232,7 @@
  4060 FOR I = Q1 - 1 TO Q1 + 1 : N(1) = -1 : N(2) = -2 : N(3) = -3 : FOR J = Q2 - 1 TO Q2 + 1
  4120     IF I > 0 AND I < 9 AND J > 0 AND J < 9 THEN N(J - Q2 + 2) = G(I, J) : Z(I, J) = G(I, J)
  4180   NEXT J : FOR L = 1 TO 3 : PRINT ": "; : IF N(L) < 0 THEN PRINT "*** "; : GOTO 4230
- 4210     PRINT RIGHT$( STR$ (N(L) + 1000), 3); " ";
+ 4210     PRINT RIGHT$( STR$(N(L) + 1000), 3); " ";
  4230   NEXT L : PRINT ":" : PRINT O1$ : NEXT I : GOTO 1990
  4250 REM PHASER CONTROL CODE BEGINS HERE
  4260 IF D(4) < 0 THEN PRINT "PHASERS INOPERATIVE": GOTO 1990
@@ -297,30 +350,45 @@
  6730 PRINT : PRINT "*** SHORT RANGE SENSORS ARE OUT ***" : PRINT : RETURN
  6770 O1$ = "---------------------------------" : PRINT O1$ : FOR I = 1 TO 8
  6820   FOR J = (I - 1) * 24 + 1 TO (I - 1) * 24 + 22 STEP 3: PRINT " "; MID$(Q$, J, 3); : NEXT J
- 6830   ON I GOTO 6850, 6900, 6960, 7020, 7070, 7120, 7180, 7240
- 6850   PRINT "        STARDATE           "; INT(T * 10) * .1: GOTO 7260
- 6900   PRINT "        CONDITION          "; C$: GOTO 7260
- 6960   PRINT "        QUADRANT           "; Q1; ", ";Q2: GOTO 7260
- 7020   PRINT "        SECTOR             "; S1; ", ";S2: GOTO 7260
- 7070   PRINT "        PHOTON TORPEDOES   "; INT(P) : GOTO 7260
- 7120   PRINT "        TOTAL ENERGY       "; INT(E+S) : GOTO 7260
- 7180   PRINT "        SHIELDS            "; INT(S) : GOTO 7260
- 7240   PRINT "        KLINGONS REMAINING "; INT(K9)
+         CASE I OF
+            WHEN 1: PRINT "        STARDATE           "; INT(T * 10) * .1
+            WHEN 2: PRINT "        CONDITION          "; C$
+            WHEN 3: PRINT "        QUADRANT           "; Q1; ", "; Q2
+            WHEN 4: PRINT "        SECTOR             "; S1; ", "; S2
+            WHEN 5: PRINT "        PHOTON TORPEDOES   "; INT(P)
+            WHEN 6: PRINT "        TOTAL ENERGY       "; INT(E+S)
+            WHEN 7: PRINT "        SHIELDS            "; INT(S)
+            WHEN 8: PRINT "        KLINGONS REMAINING "; INT(K9)
+         ENDCASE
  7260 NEXT I : PRINT O1$ : RETURN
+
  7280 REM LIBRARY COMPUTER CODE
  7290 IF D(8) < 0 THEN PRINT "COMPUTER DISABLED" : GOTO 1990
- 7320 INPUT "COMPUTER ACTIVE AND AWAITING COMMAND"; A : IF A < 0 THEN 1990
- 7350 PRINT : H8 = 1 : ON A+1 GOTO 7540, 7900, 8070, 8500, 8150, 7400
- 7360 PRINT "FUNCTIONS AVAILABLE FROM LIBRARY-COMPUTER:"
- 7370 PRINT "   0 = CUMULATIVE GALACTIC RECORD"
- 7372 PRINT "   1 = STATUS REPORT"
- 7374 PRINT "   2 = PHOTON TORPEDO DATA"
- 7376 PRINT "   3 = STARBASE NAV DATA"
- 7378 PRINT "   4 = DIRECTION/DISTANCE CALCULATOR"
- 7380 PRINT "   5 = GALAXY 'REGION NAME' MAP" : PRINT : GOTO 7320
- 7390 REM SETUP TO CHANGE CUM GAL RECORD TO GALAXY MAP
+ 7320 INPUT "COMPUTER ACTIVE AND AWAITING COMMAND: "; A
+ IF A < 0 THEN 1990
+ 7350 PRINT
+      H8 = 1
+      CASE A OF
+         WHEN 0: GOTO 7540 
+         WHEN 1: GOTO 7900
+         WHEN 2: GOTO 8070
+         WHEN 3: GOTO 8500
+         WHEN 4: GOTO 8150
+         WHEN 5: GOTO 7400
+         OTHERWISE
+            PRINT "FUNCTIONS AVAILABLE FROM LIBRARY-COMPUTER:"
+            PRINT "   0 = CUMULATIVE GALACTIC RECORD"
+            PRINT "   1 = STATUS REPORT"
+            PRINT "   2 = PHOTON TORPEDO DATA"
+            PRINT "   3 = STARBASE NAV DATA"
+            PRINT "   4 = DIRECTION/DISTANCE CALCULATOR"
+            PRINT "   5 = GALAXY 'REGION NAME' MAP"
+            PRINT
+      ENDCASE
+      GOTO 7320
+ 7390 REM SETUP TO CHANGE CUMULATIVE GALACTIC RECORD TO GALAXY MAP
  7400 H8 = 0 : G5 = 1 : PRINT "                        THE GALAXY" : GOTO 7550
- 7530 REM CUM GALACTIC RECORD
+ 7530 REM CUMULATIVE GALACTIC RECORD
  7540 REM INPUT"DO YOU WANT A HARDCOPY? IS THE TTY ON (Y/N)";A$
  7542 REM IF A$="Y" THEN POKE1229,2:POKE1237,3:NULL1
  7543 PRINT : PRINT "        ";
@@ -330,10 +398,15 @@
  7560 O1$ = "     ----- ----- ----- ----- ----- ----- ----- -----"
  7570 PRINT O1$ : FOR I = 1 TO 8 : PRINT STR$(I); "  "; : IF H8 = 0 THEN 7740
  7630   FOR J = 1 TO 8 : PRINT "   "; : IF Z(I, J) = 0 THEN PRINT "***"; : GOTO 7720
- 7700     PRINT RIGHT$( STR$ (Z(I, J) + 1000), 3);
+ 7700     PRINT RIGHT$( STR$(Z(I, J) + 1000), 3);
  7720   NEXT J : GOTO 7850
- 7740   Z4 = I : Z5 = 1 : GOSUB 9030 : J0 = INT(15 - .5 * LEN(G2$)): PRINT TAB (J0); G2$;
- 7800   Z5 = 5 : GOSUB 9030 : J0 = INT(39 - .5 * LEN(G2$)) : PRINT TAB (J0); G2$;
+ 7740   Z4 = I
+        Z5 = 1
+        GOSUB 9030
+        J0 = INT(15 - .5 * LEN(G2$))
+        PRINT TAB(J0); G2$;
+
+ 7800   Z5 = 5 : GOSUB 9030 : J0 = INT(39 - .5 * LEN(G2$)) : PRINT TAB(J0); G2$;
  7850   PRINT : PRINT O1$ : NEXT I : PRINT : GOTO 1990
  7890 REM STATUS REPORT
  7900 PRINT "   STATUS REPORT:" : X$="" : IF K9 > 1 THEN X$="S"
@@ -360,14 +433,14 @@
  8260   IF X > 0 THEN 8280
  8270   IF A = 0 THEN C1 = 5 : GOTO 8290
  8280   C1 = 1
- 8290   IF ABS (A) <= ABS (X) THEN 8330
+ 8290   IF ABS(A) <= ABS(X) THEN 8330
  8310   PRINT "DIRECTION = "; C1 + (((ABS(A) - ABS(X)) + ABS(A)) / ABS(A)) : GOTO 8460
  8330   PRINT "DIRECTION = "; C1 + (ABS(A) / ABS(X)) : GOTO 8460
  8350   IF A > 0 THEN C1 = 3 : GOTO 8420
  8360   IF X <> 0 THEN C1 = 5 : GOTO 8290
  8410   C1 = 7
  8420   IF ABS(A) >= ABS(X) THEN 8450
- 8430   PRINT "DIRECTION = "; C1 + (((ABS(X) - ABS(A)) + ABS(X)) / ABS (X)) : GOTO 8460
+ 8430   PRINT "DIRECTION = "; C1 + (((ABS(X) - ABS(A)) + ABS(X)) / ABS(X)) : GOTO 8460
  8450   PRINT "DIRECTION = "; C1 + (ABS(X) / ABS(A))
  8460   PRINT "DISTANCE = "; SQR(X ^ 2 + A ^ 2) : IF H8 = 1 THEN 1990
  8480 NEXT I : GOTO 1990
@@ -384,43 +457,53 @@
  8690 IF S8 = 190 THEN Q$ = LEFT$(Q$, 189) + A$ : RETURN
  8700 Q$ = LEFT$(Q$, S8 - 1) + A$ + RIGHT$(Q$, 190 - S8) : RETURN
  8780 REM PRINT S DEVICE NAME
- 8790 ON R1 GOTO 8792, 8794, 8796, 8798, 8800, 8802, 8804, 8806
- 8792 G2$ = "WARP ENGINES" : RETURN
- 8794 G2$ = "SHORT RANGE SENSORS" : RETURN
- 8796 G2$ = "LONG RANGE SENSORS" : RETURN
- 8798 G2$ = "PHASER CONTROL" : RETURN
- 8800 G2$ = "PHOTON TUBES" : RETURN
- 8802 G2$ = "DAMAGE CONTROL" : RETURN
- 8804 G2$ = "SHIELD CONTROL" : RETURN
- 8806 G2$ = "LIBRARY-COMPUTER" : RETURN
+      REM BUGBUG Convert this to an array
+ 8790 CASE R1 OF
+         WHEN 1: G2$ = "WARP ENGINES" 
+         WHEN 2: G2$ = "SHORT RANGE SENSORS" 
+         WHEN 3: G2$ = "LONG RANGE SENSORS" 
+         WHEN 4: G2$ = "PHASER CONTROL" 
+         WHEN 5: G2$ = "PHOTON TUBES" 
+         WHEN 6: G2$ = "DAMAGE CONTROL" 
+         WHEN 7: G2$ = "SHIELD CONTROL" 
+         WHEN 8: G2$ = "LIBRARY-COMPUTER" 
+      ENDCASE
+      RETURN
  8820 REM STRING COMPARISON IN QUADRANT ARRAY
  8830 Z1 = INT(Z1 + .5) : Z2 = INT(Z2 + .5) : S8 = (Z2 - 1) * 3 + (Z1 - 1) * 24 + 1 : Z3 = 0
  8890 IF MID$(Q$, S8, 3) <> A$ THEN RETURN
  8900 Z3 = 1 : RETURN
  9010 REM QUADRANT NAME IN G2$ FROM Z4,Z5 (=Q1,Q2)
  9020 REM CALL WITH G5=1 TO GET REGION NAME ONLY
- 9030 IF Z5 <= 4 THEN ON Z4 GOTO 9040, 9050, 9060, 9070, 9080, 9090, 9100, 9110
- 9035 GOTO 9120
- 9040 G2$ = "ANTARES" : GOTO 9210
- 9050 G2$ = "RIGEL" : GOTO 9210
- 9060 G2$ = "PROCYON" : GOTO 9210
- 9070 G2$ = "VEGA" : GOTO 9210
- 9080 G2$ = "CANOPUS" : GOTO 9210
- 9090 G2$ = "ALTAIR" : GOTO 9210
- 9100 G2$ = "SAGITTARIUS" : GOTO 9210
- 9110 G2$ = "POLLUX" : GOTO 9210
- 9120 ON Z4 GOTO 9130, 9140, 9150, 9160, 9170, 9180, 9190, 9200
- 9130 G2$ = "SIRIUS" : GOTO 9210
- 9140 G2$ = "DENEB" : GOTO 9210
- 9150 G2$ = "CAPELLA" : GOTO 9210
- 9160 G2$ = "BETELGEUSE" : GOTO 9210
- 9170 G2$ = "ALDEBARAN" : GOTO 9210
- 9180 G2$ = "REGULUS" : GOTO 9210
- 9190 G2$ = "ARCTURUS" : GOTO 9210
- 9200 G2$ = "SPICA"
- 9210 IF G5 <> 1 THEN ON Z5 GOTO 9230, 9240, 9250, 9260, 9230, 9240, 9250, 9260
- 9220 RETURN
- 9230 G2$ = G2$ + " I" : RETURN
- 9240 G2$ = G2$ + " II" : RETURN
- 9250 G2$ = G2$ + " III" : RETURN
- 9260 G2$ = G2$ + " IV" : RETURN
+ 9030 IF Z5 <= 4 THEN
+         CASE Z4 OF
+            WHEN 1: G2$ = "ANTARES"
+            WHEN 2: G2$ = "RIGEL"
+            WHEN 3: G2$ = "PROCYON"
+            WHEN 4: G2$ = "VEGA"
+            WHEN 5: G2$ = "CANOPUS"
+            WHEN 6: G2$ = "ALTAIR"
+            WHEN 7: G2$ = "SAGITTARIUS"
+            WHEN 8: G2$ = "POLLUX"
+         ENDCASE
+      ELSE
+         CASE Z4 OF
+            WHEN 1: G2$ = "SIRIUS"
+            WHEN 2: G2$ = "DENEB"
+            WHEN 3: G2$ = "CAPELLA"
+            WHEN 4: G2$ = "BETELGEUSE"
+            WHEN 5: G2$ = "ALDEBARAN"
+            WHEN 6: G2$ = "REGULUS"
+            WHEN 7: G2$ = "ARCTURUS"
+            WHEN 8: G2$ = "SPICA"
+         ENDCASE
+      ENDIF
+      IF G5 <> 1 THEN
+         CASE Z5 OF
+            WHEN 1,5: G2$ = G2$ + " I"
+            WHEN 2,6: G2$ = G2$ + " II"
+            WHEN 3,7: G2$ = G2$ + " III"
+            WHEN 4,8: G2$ = G2$ + " IV"
+         ENDCASE
+      ENDIF
+      RETURN
