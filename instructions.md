@@ -126,3 +126,9 @@ The library-computer contains six options:
 Exit game
 
 Print out final status and quit the game
+
+---
+
+### Fine print
+
+Klingon, Enterprise and Star Trek are among the trademarks of the Paramount Corporation. Many games written before and at the beginning of the personal computer era, like this one, used copyrighted material and intellectual property without permission. These trademarks are retained for historical accuracy.
